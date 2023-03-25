@@ -2,5 +2,5 @@ from django.urls import path, include
 
 
 urlpatterns = [
-    # path('', include('orders.urls_api_v1')),
+    path('', include('store.urls_api_v1')),
 ]
