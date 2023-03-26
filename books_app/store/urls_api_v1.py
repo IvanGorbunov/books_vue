@@ -8,4 +8,7 @@ app_name = 'store'
 router = SimpleRouter()
 router.register(r'book', views.BooksViewSet)
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('books-list/', views.BooksListViewSet.as_view(), name='list'),
+]
+urlpatterns += router.urls
