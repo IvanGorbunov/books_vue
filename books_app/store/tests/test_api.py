@@ -8,11 +8,11 @@ from store.tests.factories import BookFactory
 
 
 class LogicTestCase(APITestCase):
-    @classmethod
-    def setUpTestData(cls):
-        number_of_items = 33
-        for client_id in range(number_of_items):
-            BookFactory(name='Book ' + str(client_id))
+
+    def setUp(self):
+        self.book_1 = BookFactory(name='Book 1', price=25, author_name='Author 1')
+        self.book_2 = BookFactory(name='Book 2', price=55, author_name='Author 5')
+        self.book_3 = BookFactory(name='Book Author 1', price=55, author_name='Author 2')
 
     def test_list_01_url_exists_at_desired_location(self):
         response = self.client.get('/api/v1/book/')
@@ -22,9 +22,32 @@ class LogicTestCase(APITestCase):
         response = self.client.get(reverse_lazy('store:book-list'))
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
-    def test_get(self):
+    def test_list_03_get(self):
         books = Book.objects.all()
-        response = self.client.get(reverse_lazy('store:book-list'))
         serializer_data = BooksSerializer(books, many=True).data
+        response = self.client.get(reverse_lazy('store:book-list'))
         self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        self.assertEqual(serializer_data, response.data)
+
+    def test_list_04_filter(self):
+        serializer_data = BooksSerializer([self.book_2, self.book_3], many=True).data
+        response = self.client.get(reverse_lazy('store:book-list'), data={'price': '55.00'})
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        self.assertEqual(serializer_data, response.data)
+
+    def test_list_05_search(self):
+        serializer_data = BooksSerializer([self.book_1, self.book_3], many=True).data
+        response = self.client.get(reverse_lazy('store:book-list'), data={'search': 'Author 1'})
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        self.assertEqual(serializer_data, response.data)
+
+    def test_list_06_ordering(self):
+        books = Book.objects.order_by('-price').all()
+        serializer_data = BooksSerializer(books, many=True).data
+        response = self.client.get(reverse_lazy('store:book-list'), data={'ordering': '-price'})
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
         self.assertEqual(serializer_data, response.data)

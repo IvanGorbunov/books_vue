@@ -12,6 +12,7 @@ class BookFactory(DjangoModelFactory):
     """
     name = fuzzy.FuzzyText(length=255)
     price = fuzzy.FuzzyDecimal(low=1, high=100000)
+    author_name = fuzzy.FuzzyText(length=255)
 
     class Meta:
         model = Book
